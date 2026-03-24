@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rivals Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #0a0c16;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: #0d1020;
+            border: 1px solid #00b4ff;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+        }
+        h1 { color: #00b4ff; font-size: 2.5rem; margin-bottom: 8px; }
+        .version { color: #00b4ff; opacity: 0.7; margin-bottom: 24px; font-size: 0.9rem; }
+        .step {
+            background: #12152a;
+            border: 1px solid #1a2040;
+            border-radius: 10px;
+            padding: 16px;
+            margin: 12px 0;
+            text-align: left;
+        }
+        .step span { color: #00b4ff; font-weight: bold; margin-right: 8px; }
+        .loadstring {
+            background: #080a14;
+            border: 1px solid #00b4ff;
+            border-radius: 8px;
+            padding: 14px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #00dcff;
+            word-break: break-all;
+            margin: 16px 0;
+            text-align: left;
+        }
+        .copy-btn {
+            background: #00b4ff;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 8px;
+        }
+        .copy-btn:hover { background: #00dcff; }
+        .discord-btn {
+            background: #5865F2;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 8px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .discord-btn:hover { background: #6875f5; }
+        .disclaimer {
+            color: #ff5555;
+            font-size: 0.75rem;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Rivals Hub</h1>
+        <p class="version">v4.1 — by traplixy gaming</p>
+
+        <div class="step"><span>1.</span> Get your key from the Discord server</div>
+        <div class="step"><span>2.</span> Open your Roblox executor</div>
+        <div class="step"><span>3.</span> Copy and execute the loadstring below</div>
+        <div class="step"><span>4.</span> Enter your key when prompted</div>
+
+        <div class="loadstring" id="ls">
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ystealaternos-source/rivalshub/refs/heads/main/traplixyhub.lua"))()
+        </div>
+
+        <button class="copy-btn" onclick="copyLS()">📋 Copy Loadstring</button>
+        <a class="discord-btn" href="https://discord.gg/FKtCdE7D" target="_blank">💬 Discord</a>
+
+        <p class="disclaimer">⚠️ For educational purposes only. Use at your own risk.</p>
+    </div>
+
+    <script>
+        function copyLS() {
+            const text = `loadstring(game:HttpGet("https://raw.githubusercontent.com/ystealaternos-source/rivalshub/refs/heads/main/traplixyhub.lua"))()`;
+            navigator.clipboard.writeText(text);
+            document.querySelector('.copy-btn').innerText = "✅ Copied!";
+            setTimeout(() => document.querySelector('.copy-btn').innerText = "📋 Copy Loadstring", 2000);
+        }
+    </script>
+</body>
+</html>
+```
