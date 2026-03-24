@@ -1,6 +1,19 @@
 # ⚡ Rivals Hub v4.1
-
 A feature-rich Roblox script hub for the game **Rivals**, built with a custom Rayfield UI.
+
+---
+
+## 💬 Discord
+Join the Discord for updates, support and the access key!
+
+[![Discord](https://img.shields.io/badge/Discord-Join%20Server-7289DA?style=for-the-badge&logo=discord)](https://discord.gg/FKtCdE7D)
+
+---
+
+## ⚡ Loadstring
+```lua
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ystealaternos-source/rivalshub/refs/heads/main/traplixyhub.lua"))()
+```
 
 ---
 
@@ -27,7 +40,7 @@ A feature-rich Roblox script hub for the game **Rivals**, built with a custom Ra
 - Tracers, Distance, Skeleton
 - Team Check
 - Box style & tracer origin options
-- Box correction sliders (offset, width, height scale)
+- Box correction sliders
 
 ### 🧍 Player
 - Infinite Jump
@@ -55,45 +68,40 @@ A feature-rich Roblox script hub for the game **Rivals**, built with a custom Ra
 ---
 
 ## 🔑 Key System
-
-This script uses a **password-based key system**.  
-You will be prompted to enter your access key on launch.
+This script uses a password-based key system.
+Join the Discord to get your access key!
 
 ---
 
 ## 📋 How to Use
-
-1. Open your preferred Roblox exploit executor
-2. Copy and paste the script into the executor
-3. Execute while in the **Rivals** game
-4. Enter your access key when prompted
-5. The Rayfield UI will open automatically — press **RightShift** to toggle it
+1. Join the Discord and grab your key
+2. Open your Roblox executor
+3. Copy and paste the loadstring above
+4. Execute while in the **Rivals** game
+5. Enter your access key when prompted
+6. The UI will open automatically
 
 ---
 
 ## ⚙️ Requirements
-
-- A supported Roblox executor (Synapse X, KRNL, Fluxus, etc.)
+- A supported Roblox executor
 - The game: **Rivals** on Roblox
 
 ---
 
 ## ⚠️ Disclaimer
-
-> This script is intended for **educational purposes only**.  
-> Using exploits in Roblox games may violate Roblox's Terms of Service and can result in your account being banned.  
-> The developers of this script take **no responsibility** for any consequences resulting from its use.  
+> This script is for **educational purposes only**.
+> Using exploits may violate Roblox's Terms of Service and result in a ban.
+> The developer takes **no responsibility** for any consequences.
 > Use at your own risk.
 
 ---
 
 ## 👤 Credits
-
-- **Script:** traplixy gaming  
-- **UI Library:** [Rayfield by Sirius](https://sirius.menu/rayfield)
+- **Script:** traplixy gaming
+- **UI Library:** Rayfield by Sirius
 
 ---
 
 ## 📄 License
-
 All rights reserved — traplixy gaming. Do not redistribute or resell.
