@@ -1,6 +1,6 @@
 -- // ═══════════════════════════════════════════════════════════
 -- //  RIVALS HUB  |  Rayfield UI  |  v4.1
--- //  by traplixy gaming  |  Whop Protected
+-- //  by traplixy gaming
 -- // ═══════════════════════════════════════════════════════════
 
 local Players          = game:GetService("Players")
@@ -14,66 +14,18 @@ local LocalPlayer      = Players.LocalPlayer
 local Camera           = workspace.CurrentCamera
 local PlayerGui        = LocalPlayer:WaitForChild("PlayerGui")
 
--- ════════════════════════════════════════════════════════════
---  WHOP CONFIG  —  fill in locally, never share
--- ════════════════════════════════════════════════════════════
-
-local WHOP_API_KEY    = "apik_FBK5h2dMUBW4X_C4682755_C_44b01a1f386c704f18ed4f6ea69e160c8316edde388cfb50a237701426c1d3"
-local WHOP_PRODUCT_ID = "prod_NU0QZR2AqUxv5"
-local WHOP_LINK       = "https://whop.com/traplixy-hub"
-
 local SCRIPT_NAME = "RIVALS HUB"
 local SCRIPT_VER  = "v4.1"
 local ACCENT      = Color3.fromRGB(0, 180, 255)
 local ACCENT2     = Color3.fromRGB(0, 220, 255)
 local ACCENT_DARK = Color3.fromRGB(0, 100, 200)
+local VALID_KEY   = "K7husj-fauh4f-28bafd"
 
 local function tw(o,t,p,s,d)
     TweenService:Create(o,TweenInfo.new(t,s or Enum.EasingStyle.Quint,d or Enum.EasingDirection.Out),p):Play()
 end
 local function mkCorner(o,r) Instance.new("UICorner",o).CornerRadius=UDim.new(0,r or 8) end
 local function mkStroke(o,c,t) local s=Instance.new("UIStroke",o); s.Color=c; s.Thickness=t or 1; return s end
-
--- ════════════════════════════════════════════════════════════
---  WHOP KEY VERIFICATION
--- ════════════════════════════════════════════════════════════
-
-local function verifyWhopKey(licenseKey)
-    local success,result=pcall(function()
-        local url="https://api.whop.com/api/v2/memberships?product_id="..WHOP_PRODUCT_ID
-        local response=HttpService:RequestAsync({
-            Url=url,
-            Method="GET",
-            Headers={
-                ["Authorization"]="Bearer "..WHOP_API_KEY,
-                ["Content-Type"]="application/json",
-            }
-        })
-        if response.Success then
-            local data=HttpService:JSONDecode(response.Body)
-            if data and data.data then
-                for _,membership in ipairs(data.data) do
-                    if membership.license_key and
-                       membership.license_key:lower()==licenseKey:lower() then
-                        if membership.status=="active" or membership.status=="trialing" then
-                            return {
-                                valid=true,
-                                username=membership.user and membership.user.username or "User",
-                                plan=membership.plan and membership.plan.name or "Member",
-                            }
-                        else
-                            return {valid=false,reason="Membership expired or inactive."}
-                        end
-                    end
-                end
-                return {valid=false,reason="Key not found. Purchase at whop.com/traplixy-hub"}
-            end
-        end
-        return {valid=false,reason="Could not connect to Whop servers."}
-    end)
-    if not success then return {valid=false,reason="Verification error. Check your connection."} end
-    return result
-end
 
 -- ════════════════════════════════════════════════════════════
 --  CUSTOM NOTIFICATIONS
@@ -252,7 +204,7 @@ local tStroke=Instance.new("UIStroke",titleLbl); tStroke.Color=ACCENT; tStroke.T
 local subLbl=Instance.new("TextLabel",loadGui)
 subLbl.Size=UDim2.fromOffset(500,22); subLbl.AnchorPoint=Vector2.new(0.5,0)
 subLbl.Position=UDim2.new(0.5,0,0.65,0); subLbl.BackgroundTransparency=1
-subLbl.Text="by traplixy gaming  ·  Whop Protected"
+subLbl.Text="by traplixy gaming"
 subLbl.TextColor3=ACCENT; subLbl.Font=Enum.Font.Gotham; subLbl.TextSize=13
 subLbl.ZIndex=6; subLbl.TextTransparency=1
 
@@ -299,7 +251,7 @@ skipLbl.Font=Enum.Font.Code; skipLbl.TextSize=10; skipLbl.ZIndex=6
 local loadSteps={
     {text="> initializing core modules...",    pct=0.12},
     {text="> loading rayfield ui...",           pct=0.25},
-    {text="> connecting to whop servers...",    pct=0.38},
+    {text="> verifying key...",                 pct=0.38},
     {text="> building aimbot engine...",        pct=0.52},
     {text="> configuring esp renderer...",      pct=0.64},
     {text="> loading hitbox expander...",       pct=0.75},
@@ -374,7 +326,7 @@ end)
 repeat task.wait(0.05) until loadDone
 
 -- ════════════════════════════════════════════════════════════
---  WHOP KEY SYSTEM UI
+--  KEY SYSTEM
 -- ════════════════════════════════════════════════════════════
 
 local _keyDone=false
@@ -389,44 +341,19 @@ local function runKeySystem()
     kGui.Parent=PlayerGui
 
     local overlay=Instance.new("Frame",kGui)
-    overlay.Size=UDim2.fromScale(1,1); overlay.BackgroundColor3=Color3.new(0,0,0)
-    overlay.BackgroundTransparency=1; overlay.BorderSizePixel=0
-    tw(overlay,0.6,{BackgroundTransparency=0.6})
-    local overlayG=Instance.new("UIGradient",overlay)
-    overlayG.Color=ColorSequence.new{
-        ColorSequenceKeypoint.new(0,Color3.fromRGB(0,8,22)),
-        ColorSequenceKeypoint.new(1,Color3.fromRGB(0,4,14)),
-    }
-    task.spawn(function()
-        local t=0
-        while kGui.Parent do t=(t+0.3)%360; overlayG.Rotation=t; task.wait(0.016) end
-    end)
+    overlay.Size=UDim2.fromScale(1,1)
+    overlay.BackgroundColor3=Color3.fromRGB(0,8,22)
+    overlay.BackgroundTransparency=0.4
+    overlay.BorderSizePixel=0
 
     local card=Instance.new("Frame",kGui)
-    card.AnchorPoint=Vector2.new(0.5,0.5); card.Position=UDim2.fromScale(0.5,0.5)
-    card.Size=UDim2.fromOffset(0,0); card.BackgroundColor3=Color3.fromRGB(8,10,18)
-    card.BorderSizePixel=0; card.ClipsDescendants=true; mkCorner(card,14)
-    local cardG=Instance.new("UIGradient",card)
-    cardG.Color=ColorSequence.new{
-        ColorSequenceKeypoint.new(0,Color3.fromRGB(10,14,28)),
-        ColorSequenceKeypoint.new(1,Color3.fromRGB(6,8,16)),
-    }
-    cardG.Rotation=145
+    card.AnchorPoint=Vector2.new(0.5,0.5)
+    card.Position=UDim2.fromScale(0.5,0.5)
+    card.Size=UDim2.fromOffset(500,300)
+    card.BackgroundColor3=Color3.fromRGB(8,10,18)
+    card.BorderSizePixel=0
+    mkCorner(card,14); mkStroke(card,ACCENT,1.5)
 
-    local border=Instance.new("UIStroke",card)
-    border.Color=ACCENT; border.Thickness=1.5
-    task.wait()
-    tw(card,0.45,{Size=UDim2.fromOffset(500,390)},Enum.EasingStyle.Back,Enum.EasingDirection.Out)
-
-    task.spawn(function()
-        while kGui.Parent do
-            tw(border,1.4,{Color=ACCENT2,Thickness=2}); task.wait(1.4)
-            if not kGui.Parent then break end
-            tw(border,1.4,{Color=ACCENT_DARK,Thickness=1.2}); task.wait(1.4)
-        end
-    end)
-
-    -- top gradient bar
     local topBar=Instance.new("Frame",card)
     topBar.Size=UDim2.new(1,0,0,3); topBar.BackgroundColor3=ACCENT; topBar.BorderSizePixel=0
     local topG=Instance.new("UIGradient",topBar)
@@ -435,247 +362,112 @@ local function runKeySystem()
         ColorSequenceKeypoint.new(0.5,ACCENT2),
         ColorSequenceKeypoint.new(1,ACCENT_DARK),
     }
-    task.spawn(function()
-        local t=0
-        while topBar.Parent do t=(t+0.006)%1; topG.Rotation=t*360; task.wait() end
-    end)
 
-    -- header
-    local headerFrame=Instance.new("Frame",card)
-    headerFrame.Size=UDim2.new(1,0,0,80); headerFrame.Position=UDim2.fromOffset(0,3)
-    headerFrame.BackgroundTransparency=1
+    local titleLabel=Instance.new("TextLabel",card)
+    titleLabel.Size=UDim2.new(1,0,0,50)
+    titleLabel.Position=UDim2.fromOffset(0,20)
+    titleLabel.BackgroundTransparency=1
+    titleLabel.Text="RIVALS HUB — Key System"
+    titleLabel.TextColor3=Color3.fromRGB(255,255,255)
+    titleLabel.Font=Enum.Font.GothamBold
+    titleLabel.TextSize=22
 
-    local logoBg=Instance.new("Frame",headerFrame)
-    logoBg.Size=UDim2.fromOffset(44,44); logoBg.Position=UDim2.fromOffset(20,18)
-    logoBg.BackgroundColor3=ACCENT; logoBg.BackgroundTransparency=0.8; logoBg.BorderSizePixel=0; mkCorner(logoBg,99)
-    mkStroke(logoBg,ACCENT,1)
-    local logoIcon=Instance.new("TextLabel",logoBg)
-    logoIcon.Size=UDim2.fromScale(1,1); logoIcon.BackgroundTransparency=1
-    logoIcon.Text="⚡"; logoIcon.TextColor3=ACCENT
-    logoIcon.Font=Enum.Font.GothamBold; logoIcon.TextSize=22
-
-    local titleLabel=Instance.new("TextLabel",headerFrame)
-    titleLabel.Size=UDim2.new(1,-80,0,26); titleLabel.Position=UDim2.fromOffset(74,16)
-    titleLabel.BackgroundTransparency=1; titleLabel.Text="RIVALS HUB"
-    titleLabel.TextColor3=Color3.fromRGB(255,255,255); titleLabel.Font=Enum.Font.GothamBold
-    titleLabel.TextSize=22; titleLabel.TextXAlignment=Enum.TextXAlignment.Left
-
-    local verLabel=Instance.new("TextLabel",headerFrame)
-    verLabel.Size=UDim2.new(1,-80,0,18); verLabel.Position=UDim2.fromOffset(74,42)
-    verLabel.BackgroundTransparency=1; verLabel.Text=SCRIPT_VER.."  ·  Whop Protected"
-    verLabel.TextColor3=ACCENT; verLabel.Font=Enum.Font.Gotham
-    verLabel.TextSize=12; verLabel.TextXAlignment=Enum.TextXAlignment.Left
-
-    -- whop badge top right
-    local whopBadge=Instance.new("Frame",headerFrame)
-    whopBadge.Size=UDim2.fromOffset(90,26); whopBadge.AnchorPoint=Vector2.new(1,0.5)
-    whopBadge.Position=UDim2.new(1,-16,0.5,0); whopBadge.BackgroundColor3=Color3.fromRGB(12,18,38)
-    whopBadge.BorderSizePixel=0; mkCorner(whopBadge,99); mkStroke(whopBadge,ACCENT,1)
-    local whopLbl=Instance.new("TextLabel",whopBadge)
-    whopLbl.Size=UDim2.fromScale(1,1); whopLbl.BackgroundTransparency=1
-    whopLbl.Text="🔒  Whop"; whopLbl.TextColor3=ACCENT
-    whopLbl.Font=Enum.Font.GothamBold; whopLbl.TextSize=11
-
-    -- header divider
-    local hdiv=Instance.new("Frame",card)
-    hdiv.Size=UDim2.new(1,-40,0,1); hdiv.Position=UDim2.fromOffset(20,83)
-    hdiv.BackgroundColor3=Color3.fromRGB(25,30,55); hdiv.BorderSizePixel=0
-
-    -- purchase row
-    local purchaseRow=Instance.new("Frame",card)
-    purchaseRow.Size=UDim2.new(0.88,0,0,42); purchaseRow.AnchorPoint=Vector2.new(0.5,0)
-    purchaseRow.Position=UDim2.new(0.5,0,0,96); purchaseRow.BackgroundColor3=Color3.fromRGB(10,16,32)
-    purchaseRow.BorderSizePixel=0; mkCorner(purchaseRow,8); mkStroke(purchaseRow,Color3.fromRGB(25,40,70),1)
-
-    local shopIcon=Instance.new("TextLabel",purchaseRow)
-    shopIcon.Size=UDim2.fromOffset(36,42); shopIcon.Position=UDim2.fromOffset(6,0)
-    shopIcon.BackgroundTransparency=1; shopIcon.Text="🛒"
-    shopIcon.Font=Enum.Font.Gotham; shopIcon.TextSize=16
-
-    local purchaseCol=Instance.new("Frame",purchaseRow)
-    purchaseCol.Size=UDim2.new(1,-130,1,0); purchaseCol.Position=UDim2.fromOffset(40,0)
-    purchaseCol.BackgroundTransparency=1
-
-    local purchaseLine1=Instance.new("TextLabel",purchaseCol)
-    purchaseLine1.Size=UDim2.new(1,0,0,20); purchaseLine1.Position=UDim2.fromOffset(0,5)
-    purchaseLine1.BackgroundTransparency=1; purchaseLine1.Text="Get your key at"
-    purchaseLine1.TextColor3=Color3.fromRGB(80,100,140); purchaseLine1.Font=Enum.Font.Gotham
-    purchaseLine1.TextSize=10; purchaseLine1.TextXAlignment=Enum.TextXAlignment.Left
-
-    local purchaseLine2=Instance.new("TextLabel",purchaseCol)
-    purchaseLine2.Size=UDim2.new(1,0,0,18); purchaseLine2.Position=UDim2.fromOffset(0,20)
-    purchaseLine2.BackgroundTransparency=1; purchaseLine2.Text="whop.com/traplixy-hub"
-    purchaseLine2.TextColor3=Color3.fromRGB(100,160,220); purchaseLine2.Font=Enum.Font.GothamBold
-    purchaseLine2.TextSize=12; purchaseLine2.TextXAlignment=Enum.TextXAlignment.Left
-
-    -- copy link btn
-    local copyLinkBtn=Instance.new("TextButton",purchaseRow)
-    copyLinkBtn.Size=UDim2.fromOffset(84,28); copyLinkBtn.AnchorPoint=Vector2.new(1,0.5)
-    copyLinkBtn.Position=UDim2.new(1,-8,0.5,0); copyLinkBtn.BackgroundColor3=ACCENT
-    copyLinkBtn.BorderSizePixel=0; copyLinkBtn.Text="📋  Copy"
-    copyLinkBtn.TextColor3=Color3.fromRGB(255,255,255); copyLinkBtn.Font=Enum.Font.GothamBold
-    copyLinkBtn.TextSize=11; mkCorner(copyLinkBtn,7)
-
-    copyLinkBtn.MouseButton1Click:Connect(function()
-        if setclipboard then
-            setclipboard(WHOP_LINK)
-            copyLinkBtn.Text="✓  Copied!"
-            tw(copyLinkBtn,0.15,{BackgroundColor3=Color3.fromRGB(28,185,75)})
-            task.delay(1.8,function()
-                copyLinkBtn.Text="📋  Copy"
-                tw(copyLinkBtn,0.2,{BackgroundColor3=ACCENT})
-            end)
-        end
-    end)
-    copyLinkBtn.MouseEnter:Connect(function() tw(copyLinkBtn,0.1,{BackgroundColor3=ACCENT2}) end)
-    copyLinkBtn.MouseLeave:Connect(function() tw(copyLinkBtn,0.15,{BackgroundColor3=ACCENT}) end)
-    copyLinkBtn.MouseButton1Down:Connect(function() tw(copyLinkBtn,0.08,{Size=UDim2.fromOffset(80,26)}) end)
-    copyLinkBtn.MouseButton1Up:Connect(function() tw(copyLinkBtn,0.12,{Size=UDim2.fromOffset(84,28)},Enum.EasingStyle.Back,Enum.EasingDirection.Out) end)
-
-    -- section divider
-    local secDiv=Instance.new("Frame",card)
-    secDiv.Size=UDim2.new(0.88,0,0,1); secDiv.AnchorPoint=Vector2.new(0.5,0)
-    secDiv.Position=UDim2.new(0.5,0,0,148); secDiv.BackgroundColor3=Color3.fromRGB(22,28,50)
-    secDiv.BorderSizePixel=0
-
-    -- input label
     local inputLabel=Instance.new("TextLabel",card)
-    inputLabel.Size=UDim2.new(0.88,0,0,16); inputLabel.AnchorPoint=Vector2.new(0.5,0)
-    inputLabel.Position=UDim2.new(0.5,0,0,158); inputLabel.BackgroundTransparency=1
-    inputLabel.Text="WHOP LICENSE KEY"; inputLabel.TextColor3=Color3.fromRGB(70,110,150)
-    inputLabel.Font=Enum.Font.GothamBold; inputLabel.TextSize=10
-    inputLabel.TextXAlignment=Enum.TextXAlignment.Left
+    inputLabel.Size=UDim2.new(0.88,0,0,16)
+    inputLabel.AnchorPoint=Vector2.new(0.5,0)
+    inputLabel.Position=UDim2.new(0.5,0,0,80)
+    inputLabel.BackgroundTransparency=1
+    inputLabel.Text="ENTER ACCESS KEY"
+    inputLabel.TextColor3=Color3.fromRGB(70,110,150)
+    inputLabel.Font=Enum.Font.GothamBold
+    inputLabel.TextSize=11
 
-    -- input box
     local inputWrap=Instance.new("Frame",card)
-    inputWrap.Size=UDim2.new(0.88,0,0,48); inputWrap.AnchorPoint=Vector2.new(0.5,0)
-    inputWrap.Position=UDim2.new(0.5,0,0,178); inputWrap.BackgroundColor3=Color3.fromRGB(12,14,26)
-    inputWrap.BorderSizePixel=0; mkCorner(inputWrap,10)
+    inputWrap.Size=UDim2.new(0.88,0,0,48)
+    inputWrap.AnchorPoint=Vector2.new(0.5,0)
+    inputWrap.Position=UDim2.new(0.5,0,0,104)
+    inputWrap.BackgroundColor3=Color3.fromRGB(12,14,26)
+    inputWrap.BorderSizePixel=0
+    mkCorner(inputWrap,10)
     local iStroke=mkStroke(inputWrap,Color3.fromRGB(35,45,70),1.2)
 
-    local keyIcon=Instance.new("TextLabel",inputWrap)
-    keyIcon.Size=UDim2.new(0,42,1,0); keyIcon.BackgroundTransparency=1
-    keyIcon.Text="🔑"; keyIcon.TextSize=16; keyIcon.Font=Enum.Font.Gotham
-
     local inputBox=Instance.new("TextBox",inputWrap)
-    inputBox.Size=UDim2.new(1,-48,1,0); inputBox.Position=UDim2.fromOffset(44,0)
-    inputBox.BackgroundTransparency=1; inputBox.PlaceholderText="Paste Whop license key..."
-    inputBox.PlaceholderColor3=Color3.fromRGB(50,60,90); inputBox.Text=""
-    inputBox.TextColor3=Color3.fromRGB(200,225,255); inputBox.Font=Enum.Font.Code
-    inputBox.TextSize=13; inputBox.TextXAlignment=Enum.TextXAlignment.Left
+    inputBox.Size=UDim2.new(1,-16,1,0)
+    inputBox.Position=UDim2.fromOffset(10,0)
+    inputBox.BackgroundTransparency=1
+    inputBox.PlaceholderText="Paste key here..."
+    inputBox.PlaceholderColor3=Color3.fromRGB(50,60,90)
+    inputBox.Text=""
+    inputBox.TextColor3=Color3.fromRGB(200,225,255)
+    inputBox.Font=Enum.Font.Code
+    inputBox.TextSize=13
+    inputBox.TextXAlignment=Enum.TextXAlignment.Left
     inputBox.ClearTextOnFocus=false
 
     inputBox.Focused:Connect(function() tw(iStroke,0.2,{Color=ACCENT,Thickness=1.8}) end)
     inputBox.FocusLost:Connect(function() tw(iStroke,0.3,{Color=Color3.fromRGB(35,45,70),Thickness=1.2}) end)
 
-    -- status label
     local statusL=Instance.new("TextLabel",card)
-    statusL.Size=UDim2.new(0.88,0,0,20); statusL.AnchorPoint=Vector2.new(0.5,0)
-    statusL.Position=UDim2.new(0.5,0,0,234); statusL.BackgroundTransparency=1
-    statusL.Text=""; statusL.Font=Enum.Font.Gotham; statusL.TextSize=12
+    statusL.Size=UDim2.new(0.88,0,0,20)
+    statusL.AnchorPoint=Vector2.new(0.5,0)
+    statusL.Position=UDim2.new(0.5,0,0,162)
+    statusL.BackgroundTransparency=1
+    statusL.Text=""
+    statusL.Font=Enum.Font.Gotham
+    statusL.TextSize=12
     statusL.TextColor3=Color3.fromRGB(255,80,80)
 
-    -- verify button
     local btn=Instance.new("TextButton",card)
-    btn.Size=UDim2.new(0.88,0,0,46); btn.AnchorPoint=Vector2.new(0.5,0)
-    btn.Position=UDim2.new(0.5,0,0,262); btn.BackgroundColor3=ACCENT
-    btn.BorderSizePixel=0; btn.Text="VERIFY WITH WHOP  →"
-    btn.TextColor3=Color3.fromRGB(255,255,255); btn.Font=Enum.Font.GothamBold
-    btn.TextSize=14; btn.AutoButtonColor=false; mkCorner(btn,10)
-    local btnG=Instance.new("UIGradient",btn)
-    btnG.Color=ColorSequence.new{
-        ColorSequenceKeypoint.new(0,ACCENT_DARK),
-        ColorSequenceKeypoint.new(1,ACCENT),
-    }
-    btnG.Rotation=90
+    btn.Size=UDim2.new(0.88,0,0,46)
+    btn.AnchorPoint=Vector2.new(0.5,0)
+    btn.Position=UDim2.new(0.5,0,0,190)
+    btn.BackgroundColor3=ACCENT
+    btn.BorderSizePixel=0
+    btn.Text="VERIFY KEY  →"
+    btn.TextColor3=Color3.fromRGB(255,255,255)
+    btn.Font=Enum.Font.GothamBold
+    btn.TextSize=14
+    btn.AutoButtonColor=false
+    mkCorner(btn,10)
 
     btn.MouseEnter:Connect(function() tw(btn,0.15,{BackgroundColor3=ACCENT2}) end)
     btn.MouseLeave:Connect(function() tw(btn,0.2,{BackgroundColor3=ACCENT}) end)
-    btn.MouseButton1Down:Connect(function() tw(btn,0.08,{Size=UDim2.new(0.86,0,0,44)},Enum.EasingStyle.Quint) end)
-    btn.MouseButton1Up:Connect(function() tw(btn,0.15,{Size=UDim2.new(0.88,0,0,46)},Enum.EasingStyle.Back,Enum.EasingDirection.Out) end)
-
-    -- attempts bar
-    local barBG2=Instance.new("Frame",card)
-    barBG2.Size=UDim2.new(0.88,0,0,3); barBG2.AnchorPoint=Vector2.new(0.5,0)
-    barBG2.Position=UDim2.new(0.5,0,0,320); barBG2.BackgroundColor3=Color3.fromRGB(20,25,42)
-    barBG2.BorderSizePixel=0; mkCorner(barBG2,99)
-    local barFill2=Instance.new("Frame",barBG2)
-    barFill2.Size=UDim2.fromScale(1,1); barFill2.BackgroundColor3=ACCENT
-    barFill2.BorderSizePixel=0; mkCorner(barFill2,99)
-
-    local attLbl=Instance.new("TextLabel",card)
-    attLbl.Size=UDim2.new(0.88,0,0,16); attLbl.AnchorPoint=Vector2.new(0.5,0)
-    attLbl.Position=UDim2.new(0.5,0,0,328); attLbl.BackgroundTransparency=1
-    attLbl.Text="5 attempts remaining"; attLbl.TextColor3=Color3.fromRGB(55,70,100)
-    attLbl.Font=Enum.Font.Gotham; attLbl.TextSize=10
-
-    -- footer
-    local footerLbl=Instance.new("TextLabel",card)
-    footerLbl.Size=UDim2.new(0.88,0,0,16); footerLbl.AnchorPoint=Vector2.new(0.5,0)
-    footerLbl.Position=UDim2.new(0.5,0,0,358); footerLbl.BackgroundTransparency=1
-    footerLbl.Text="traplixy gaming  ·  do not share your key"
-    footerLbl.TextColor3=Color3.fromRGB(35,45,70); footerLbl.Font=Enum.Font.Gotham
-    footerLbl.TextSize=9
-
-    local attempts=0; local maxAttempts=5; local locked=false
-
-    local function shakeCard()
-        local orig=card.Position
-        for i=1,6 do tw(card,0.04,{Position=orig+UDim2.fromOffset((i%2==0) and 10 or -10,0)}); task.wait(0.045) end
-        tw(card,0.1,{Position=orig})
-    end
+    btn.MouseButton1Down:Connect(function() tw(btn,0.08,{Size=UDim2.new(0.86,0,0,44)}) end)
+    btn.MouseButton1Up:Connect(function() tw(btn,0.12,{Size=UDim2.new(0.88,0,0,46)},Enum.EasingStyle.Back,Enum.EasingDirection.Out) end)
 
     local function tryKey()
-        if locked then return end
         local entered=inputBox.Text:gsub("%s+","")
         if entered=="" then
             statusL.TextColor3=Color3.fromRGB(255,180,50)
-            statusL.Text="⚠  Please enter your Whop license key."
+            statusL.Text="⚠  Please enter a key."
             return
         end
-        btn.Text="⏳  Verifying with Whop..."
-        tw(btn,0.15,{BackgroundColor3=Color3.fromRGB(25,35,55)}); task.wait(0.3)
-        statusL.TextColor3=Color3.fromRGB(80,140,200)
-        statusL.Text="> connecting to whop servers..."
-        local result=verifyWhopKey(entered)
-        if result.valid then
-            _verifiedUser=result.username or LocalPlayer.Name
-            _verifiedPlan=result.plan or "Member"
+        if entered==VALID_KEY then
+            _verifiedUser=LocalPlayer.Name
+            _verifiedPlan="Member"
             tw(iStroke,0.2,{Color=Color3.fromRGB(50,220,100)})
             tw(btn,0.2,{BackgroundColor3=Color3.fromRGB(28,185,75)})
-            tw(barFill2,0.3,{BackgroundColor3=Color3.fromRGB(28,185,75)})
-            btn.Text="✔  Verified — ".._verifiedPlan
+            btn.Text="✔  Access Granted"
             statusL.TextColor3=Color3.fromRGB(80,255,130)
-            statusL.Text="✔  Welcome, ".._verifiedUser.."!  Access granted."
-            attLbl.Text="Enjoy Rivals Hub  ·  "..SCRIPT_VER
+            statusL.Text="✔  Welcome, "..LocalPlayer.Name.."!"
             task.wait(1.5)
             tw(card,0.4,{Size=UDim2.fromOffset(500,0)})
             tw(overlay,0.4,{BackgroundTransparency=1})
             task.wait(0.5); kGui:Destroy(); _keyDone=true
         else
-            attempts+=1; local left=maxAttempts-attempts
-            task.spawn(shakeCard)
-            tw(iStroke,0.1,{Color=Color3.fromRGB(255,55,55)}); task.wait(0.15)
+            tw(iStroke,0.1,{Color=Color3.fromRGB(255,55,55)})
+            task.wait(0.15)
             tw(iStroke,0.45,{Color=Color3.fromRGB(35,45,70)})
             statusL.TextColor3=Color3.fromRGB(255,75,75)
-            if left<=0 then
-                locked=true; btn.Text="⛔  LOCKED"
-                tw(btn,0.2,{BackgroundColor3=Color3.fromRGB(120,20,20)})
-                tw(barFill2,0.4,{Size=UDim2.fromScale(0,1),BackgroundColor3=Color3.fromRGB(200,35,35)})
-                statusL.Text="⛔  Too many attempts. Re-execute the script."
-                attLbl.Text="No attempts remaining"
-            else
-                btn.Text="TRY AGAIN"
-                tw(btn,0.2,{BackgroundColor3=ACCENT})
-                tw(barFill2,0.35,{Size=UDim2.fromScale(left/maxAttempts,1)})
-                statusL.Text="✘  "..result.reason
-                attLbl.Text=left.." attempt"..(left==1 and "" or "s").." remaining"
-            end
+            statusL.Text="✘  Invalid key. Access denied."
+            btn.Text="TRY AGAIN"
+            tw(btn,0.2,{BackgroundColor3=ACCENT})
         end
     end
 
     btn.MouseButton1Click:Connect(function() task.spawn(tryKey) end)
     inputBox.FocusLost:Connect(function(enter) if enter then task.spawn(tryKey) end end)
+
     repeat task.wait(0.05) until _keyDone
 end
 
@@ -1325,9 +1117,8 @@ MiscTab:CreateButton({Name="📋 Copy Username",
 -- ── ℹ️ INFO ───────────────────────────────────────────────────
 local InfoTab=Window:CreateTab("ℹ️  Info",nil)
 InfoTab:CreateSection("— Account —")
-InfoTab:CreateLabel("Whop User: ".._verifiedUser)
+InfoTab:CreateLabel("User: ".._verifiedUser)
 InfoTab:CreateLabel("Plan: ".._verifiedPlan)
-InfoTab:CreateLabel("Protected by Whop  ·  whop.com/traplixy-hub")
 InfoTab:CreateDivider()
 InfoTab:CreateSection("— Credits —")
 InfoTab:CreateLabel("Script by: traplixy gaming")
